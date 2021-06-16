@@ -1,87 +1,93 @@
-
-
-// constructor using prototype
-function Book(name, author, type) {
-    this.name = name;
-    this.author = author;
-    this.type = type;
+console.log('This is ES6 version of Project 2');
+class Book {
+    constructor(name, author, type) {
+        this.name = name;
+        this.author = author;
+        this.type = type;
+    }
 }
-// declaring global variables
 let books=[];
 
-
-
-// display constructor :: we will enter some methods in its prototype which will be responsible for displaying our books on the user interface.
-function Display() {
-
-}
-
-// Add methods to display prototype
-Display.prototype.add = function(){
-    console.log("Adding to ui");
-    tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML="";
-    books=JSON.parse(localStorage.getItem("books"));
-    books.forEach(function(element,index ) {
-        let uiString = `<tr>
-                       <td>${element.name}</td>
-                        <td>${element.author}</td>
-                        <td>${element.type}</td>
-                    </tr>`;
+class Display {
+    add() {
+        console.log("Adding to UI");
+        let tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML="";
+        let uiString;
+        books=JSON.parse(localStorage.getItem("books"));
+        books.forEach(function(element,index){
+             uiString = `<tr>
+            <td>${index+1}</td> 
+            <td>${element.name}</td>
+            <td>${element.author}</td>
+            <td>${element.type}</td>
+            <td><button id = "delete" class="delete"  >Delete</button></td>
                     
-    tableBody.innerHTML += uiString;  
-    });
-                  
-}
-Display.prototype.clear = function(){
-    let libraryForm = document.getElementById('libraryForm');
-    libraryForm.reset();
-}
 
-Display.prototype.validate = function(book){
-     if (book.name.length<2 || book.author.length<2){
-         return false;
-         }
-         else{
+        </tr>`;
+tableBody.innerHTML += uiString;
+index++;
+        });
+        
+    }
+
+    clear() {
+        let libraryForm = document.getElementById('libraryForm');
+        libraryForm.reset();
+    }
+
+    validate(book) {
+        if (book.name.length < 2 || book.author.length < 2) {
+            return false
+        }
+        else {
             return true;
         }
     }
+    
 
-Display.prototype.show = function(type,displayMessage){
-    let message = document.getElementById('message');
-    message.innerHTML = `<div class="alert  alert-${type}   alert-dismissible fade show" role="alert">
-    <strong> Messge:</strong> ${displayMessage}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-    </button>
-  </div>`
-  setTimeout(function() {
-      message.innerHTML= ''  
-    }, 2000);
-
-}  
+    show(type, displayMessage) {
+        let message = document.getElementById('message');
+        let boldText;
+        if(type==='success'){
+            boldText = 'Success';
+        }
+        else{
+            boldText = 'Error!';
+        }
+        message.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                                <strong>${boldText}:</strong> ${displayMessage}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                                </button>
+                            </div>`;
+        setTimeout(function () {
+            message.innerHTML = ''
+        }, 2000);
+    
+    }
+}
 let display = new Display();
-display.add();  
-
-
-
+display.add();
 // Add submit event listener to libraryForm
-let libraryForm = document.getElementById("libraryForm");
+let libraryForm = document.getElementById('libraryForm');
 libraryForm.addEventListener('submit', libraryFormSubmit);
 
 
-// definition of function made for submit button i.e. libraryFormSubmit
-function libraryFormSubmit(e) {
-    console.log('You have submitted library form ');
-    let name = document.getElementById("bookName").value;
-    let author = document.getElementById("author").value;
-    // type has 3 different types with 3 diff ids
-    //  let type =document.getElementById("").value;
-    let fiction = document.getElementById("fiction");
-    let programming = document.getElementById("programming");
-    let cooking = document.getElementById("cooking");
-    let type;
 
+
+
+
+
+function libraryFormSubmit(e) {
+    console.log('YOu have submitted library form');
+    let name = document.getElementById('bookName').value;
+    let author = document.getElementById('author').value;
+    let type;
+    let fiction = document.getElementById('fiction');
+    let programming = document.getElementById('programming');
+    let cooking = document.getElementById('cooking');
+    
 
     if (fiction.checked) {
         type = fiction.value;
@@ -93,28 +99,34 @@ function libraryFormSubmit(e) {
         type = cooking.value;
     }
 
+
+
     let book = new Book(name, author, type);
     console.log(book);
 
-    // let display = new Display();
-    // showing previous data after reload
+    
     display.add();
-
-    if(display.validate(book)){ // so that it is assured that the author and book name is surely entered by user otherwise it will create empty rows in table by just directly clicking the add book button.
-    // display.add(); // add method adds the book in the table.
-    // display.clear(); // clear method will clear the display that is once the form is submitted it will clear the text area .
-    // display.show('success ',' Your book is successfully added . ');
-    books.push(book);
-    localStorage.setItem("books",JSON.stringify(books));
-    display.add();
-    display.clear(); 
-    display.show('success ',' Your book is successfully added . ');
-
+    if (display.validate(book)) {
+        books.push(book);
+        localStorage.setItem("books",JSON.stringify(books));
+        display.add();
+        display.clear();
+        display.show('success', 'Your book has been successfully added')
     }
-    else{
-        display.show('error ',' Sorry you can not add this book.');
+    else {
+        // Show error to the user
+        display.show('danger', 'Sorry you cannot add this book');
     }
 
-
+    
     e.preventDefault();
 }
+let del = document.getElementById("delete");
+    del.addEventListener('click',function(i){
+    books=JSON.parse(localStorage.getItem("books"));
+    books.splice(i,1);
+    localStorage.setItem("books",JSON.stringify(books));
+    display.add();
+    display.show('success','Book deleted successfully!!');
+
+});
